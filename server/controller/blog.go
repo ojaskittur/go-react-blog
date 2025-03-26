@@ -3,6 +3,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"GO-REACT-BLOG/server/database"
 	"GO-REACT-BLOG/server/model"
+	"log"
 )
 
 func BlogList(c *fiber.Ctx) error{
@@ -23,6 +24,23 @@ func BlogCreate(c *fiber.Ctx) error{
 		"statusText": "OK",
 		"msg": "Add a blog",
 	}
+
+	record :=new (model.Blog)
+	if err :=c.BodyParser(&record); err!=nil{
+		log.Println("Error in parsing request")
+		context["statusText"]=""
+		context["msg"]="something went wrong"
+	}
+	result :=database.DBConn.Create(record)
+
+	if(result.Error !=nil){
+		log.Println("error in saving data")
+		context["statusText"]=""
+		context["msg"]="something went wrong"
+	}
+	context["msg"]="Record saved sucessfully"
+	context["data"]=record
+
 	c.Status(201)
 	return c.JSON(context)
 }
