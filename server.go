@@ -1,7 +1,12 @@
 package main
 
-import "github.com/gofiber/fiber/v2"
-import "GO-REACT-BLOG/server/database"
+import(
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"GO-REACT-BLOG/server/database"
+	"GO-REACT-BLOG/server/router"
+)
+
 
 func init(){
 	database.ConnectDB()
@@ -14,8 +19,7 @@ func main(){
 	}
 	defer sqlDb.Close()
 	app :=fiber.New()
-	app.Get("/",func(c *fiber.Ctx) error{
-		return c.JSON(fiber.Map{"message":"welcome to my first blog application"})
-	})
+	app.Use(logger.New())
+	router.SetUpRoutes(app)
 	app.Listen(":8000")
 }
