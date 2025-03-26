@@ -5,6 +5,6 @@ import "GO-REACT-BLOG/server/controller"
 func SetUpRoutes(app * fiber.App){
 	app.Get("/", controller.BlogList)
 	app.Post("/",controller.BlogCreate)
-	app.Put("/",controller.BlogUpdate)
+	app.Put("/:id",controller.BlogUpdate)
 	app.Delete("/",controller.BlogDelete)
 }
