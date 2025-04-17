@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from "react";
-import { Col, Container, Row, Button } from "react-bootstrap"
+import { Col, Container, Row, Button, Card } from "react-bootstrap"
 import { Link, useNavigate } from 'react-router-dom';
 
 const Home = () => {
@@ -66,36 +66,52 @@ const Home = () => {
           </Col>
         )}
         
-        {apiData && (
-          apiData.map((record, index) => (
-            <Col key={index} xs="4" className="py-5 box">
-              <div className="title">
-                <Link to={`blog/${record.id}`}>{record.title}</Link>
-              </div>
-              <div className="mb-3">{record.post}</div>
-              <div className="d-flex justify-content-between gap-2">
-                <Link to={`blog/${record.id}`}>
-                  <Button variant="info" size="sm">View</Button>
-                </Link>
-                <Button 
-                  variant="primary" 
-                  size="sm" 
-                  onClick={() => navigate(`/edit-post/${record.id}`)}
-                >
-                  Edit
-                </Button>
-                <Button 
-                  variant="danger" 
-                  size="sm" 
-                  onClick={() => handleDelete(record.id)}
-                  disabled={deleteStatus.loading}
-                >
-                  {deleteStatus.loading ? 'Deleting...' : 'Delete'}
-                </Button>
-              </div>
-            </Col>
-          ))
-        )}
+        {apiData && apiData.map((record, index) => (
+          <Col key={index} xs="12" md="4" className="mb-4">
+            <Card className="h-100">
+              {record.image_path && (
+                <Card.Img 
+                  variant="top" 
+                  src={`http://localhost:8000${record.image_path}`} 
+                  alt={record.title}
+                  style={{ height: '200px', objectFit: 'cover' }}
+                />
+              )}
+              <Card.Body>
+                <Card.Title>
+                  <Link to={`blog/${record.id}`} className="text-decoration-none">
+                    {record.title}
+                  </Link>
+                </Card.Title>
+                <Card.Text className="mb-3">
+                  {record.post.length > 100 
+                    ? `${record.post.substring(0, 100)}...` 
+                    : record.post}
+                </Card.Text>
+                <div className="d-flex justify-content-between mt-auto">
+                  <Link to={`blog/${record.id}`}>
+                    <Button variant="info" size="sm">View</Button>
+                  </Link>
+                  <Button 
+                    variant="primary" 
+                    size="sm" 
+                    onClick={() => navigate(`/edit-post/${record.id}`)}
+                  >
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="danger" 
+                    size="sm" 
+                    onClick={() => handleDelete(record.id)}
+                    disabled={deleteStatus.loading}
+                  >
+                    {deleteStatus.loading ? 'Deleting...' : 'Delete'}
+                  </Button>
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
       </Row>
     </Container>
   );

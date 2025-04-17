@@ -11,6 +11,9 @@ const EditPost = () => {
     title: '',
     post: ''
   });
+  const [image, setImage] = useState(null);
+  const [currentImage, setCurrentImage] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -28,6 +31,9 @@ const EditPost = () => {
             title: post.title,
             post: post.post
           });
+          if (post.image_path) {
+            setCurrentImage(`http://localhost:8000${post.image_path}`);
+          }
         }
       } catch (error) {
         console.error('Error fetching post:', error);
@@ -47,14 +53,37 @@ const EditPost = () => {
     });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      // Create a preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
+    // Use FormData to handle multipart/form-data for file uploads
+    const postData = new FormData();
+    postData.append('title', formData.title);
+    postData.append('post', formData.post);
+    
+    if (image) {
+      postData.append('image', image);
+    }
+
     try {
       const apiUrl = `http://localhost:8000/${id}`;
-      const response = await axios.put(apiUrl, formData);
+      const response = await axios.put(apiUrl, postData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       
       if (response.status === 200) {
         // Redirect to the post detail page after successful update
@@ -112,6 +141,35 @@ const EditPost = () => {
                 required
                 placeholder="Write your post content here"
               />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Image</Form.Label>
+              {currentImage && !imagePreview && (
+                <div className="mb-2">
+                  <p>Current image:</p>
+                  <img 
+                    src={currentImage} 
+                    alt="Current" 
+                    style={{ maxWidth: '100%', maxHeight: '200px' }} 
+                  />
+                </div>
+              )}
+              <Form.Control
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              {imagePreview && (
+                <div className="mt-2">
+                  <p>New image:</p>
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    style={{ maxWidth: '100%', maxHeight: '200px' }} 
+                  />
+                </div>
+              )}
             </Form.Group>
 
             <div className="d-flex gap-2">

@@ -76,6 +76,17 @@ const Blog = () => {
           </Col>
         )}
         
+        {apiData.image_path && (
+          <Col xs='12' className="mb-4">
+            <img 
+              src={`http://localhost:8000${apiData.image_path}`} 
+              alt={apiData.title}
+              style={{ maxWidth: '100%', height: 'auto' }}
+              className="mb-3"
+            />
+          </Col>
+        )}
+        
         <Col xs='12' className="mb-4">
           <p>{apiData.post}</p>
         </Col>

@@ -6,9 +6,20 @@ import(
 	"GO-REACT-BLOG/server/database"
 	"GO-REACT-BLOG/server/router"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"log"
+	"os"
 )
 
-
+func ensureUploadsDirectory() {
+	uploadsDir := "./uploads"
+	if _, err := os.Stat(uploadsDir); os.IsNotExist(err) {
+		err := os.MkdirAll(uploadsDir, 0755)
+		if err != nil {
+			log.Fatal("Failed to create uploads directory:", err)
+		}
+		log.Println("Created uploads directory")
+	}
+}
 func init(){
 	database.ConnectDB()
 }
@@ -19,6 +30,7 @@ func main(){
 		panic("error in sql connection")
 	}
 	defer sqlDb.Close()
+	ensureUploadsDirectory()
 	app :=fiber.New()
 
 	app.Use(cors.New(cors.Config{

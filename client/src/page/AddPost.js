@@ -8,6 +8,8 @@ const AddPost = () => {
     title: '',
     post: ''
   });
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -19,14 +21,37 @@ const AddPost = () => {
     });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      // Create a preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
+    // Use FormData to handle multipart/form-data for file uploads
+    const postData = new FormData();
+    postData.append('title', formData.title);
+    postData.append('post', formData.post);
+    
+    if (image) {
+      postData.append('image', image);
+    }
+
     try {
       const apiUrl = "http://localhost:8000";
-      const response = await axios.post(apiUrl, formData);
+      const response = await axios.post(apiUrl, postData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       
       if (response.status === 201) {
         // Redirect to home page after successful submission
@@ -72,6 +97,24 @@ const AddPost = () => {
                 required
                 placeholder="Write your post content here"
               />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Image (Optional)</Form.Label>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              {imagePreview && (
+                <div className="mt-2">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    style={{ maxWidth: '100%', maxHeight: '200px' }} 
+                  />
+                </div>
+              )}
             </Form.Group>
 
             <Button 
