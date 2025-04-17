@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-
+import { Container, Row, Col, Form, Button, Spinner, Navbar } from 'react-bootstrap';
+import { useNavigate, Link } from 'react-router-dom';
+import '../App.css';
 const AddPost = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -66,68 +66,110 @@ const AddPost = () => {
   };
 
   return (
-    <Container>
-      <Row>
-        <Col xs='12' className="py-3">
-          <h1 className="text-center">Add New Blog Post</h1>
-        </Col>
-        <Col xs='12'>
-          {error && <div className="alert alert-danger">{error}</div>}
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                required
-                placeholder="Enter post title"
-              />
-            </Form.Group>
+    <>
+      <Navbar className="app-navbar">
+        <Container>
+          <Link to="/">
+            <Navbar.Brand>Blog Explorer</Navbar.Brand>
+          </Link>
+        </Container>
+      </Navbar>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Content</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                name="post"
-                value={formData.post}
-                onChange={handleChange}
-                required
-                placeholder="Write your post content here"
-              />
-            </Form.Group>
+      <Container>
+        <Row>
+          <Col xs="12" lg={{ span: 8, offset: 2 }}>
+            <h1>Create New Post</h1>
+            
+            {error && <div className="alert alert-danger mb-4">{error}</div>}
+            
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-4">
+                <Form.Label>Title</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter an engaging title"
+                  className="form-control-lg"
+                />
+              </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Image (Optional)</Form.Label>
-              <Form.Control
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-              {imagePreview && (
-                <div className="mt-2">
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    style={{ maxWidth: '100%', maxHeight: '200px' }} 
-                  />
-                </div>
-              )}
-            </Form.Group>
+              <Form.Group className="mb-4">
+                <Form.Label>Content</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={8}
+                  name="post"
+                  value={formData.post}
+                  onChange={handleChange}
+                  required
+                  placeholder="Write your post content here"
+                />
+              </Form.Group>
 
-            <Button 
-              variant="primary" 
-              type="submit" 
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Post'}
-            </Button>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
+              <Form.Group className="mb-4">
+                <Form.Label>Featured Image</Form.Label>
+                <Form.Control
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+                <Form.Text className="text-secondary">
+                  Add a high-quality image to make your post stand out.
+                </Form.Text>
+                
+                {imagePreview && (
+                  <div className="image-preview">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      style={{ maxWidth: '100%', maxHeight: '300px', objectFit: 'cover' }}
+                    />
+                  </div>
+                )}
+              </Form.Group>
+
+              <div className="d-flex gap-3 mb-5">
+                <Button
+                  variant="primary"
+                  type="submit"
+                  size="lg"
+                  disabled={isSubmitting}
+                  className="px-4"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Spinner 
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+                      Publishing...
+                    </>
+                  ) : 'Publish Post'}
+                </Button>
+                <Button 
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => navigate('/')}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </Form>
+          </Col>
+        </Row>
+
+        <footer className="app-footer">
+          <p>© {new Date().getFullYear()} Blog Explorer • Built with React & Go Fiber</p>
+        </footer>
+      </Container>
+    </>
   );
 };
 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
-
+import { Container, Row, Col, Form, Button, Spinner, Navbar } from 'react-bootstrap';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import '../App.css';
 const EditPost = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -34,6 +34,9 @@ const EditPost = () => {
           if (post.image_path) {
             setCurrentImage(`http://localhost:8000${post.image_path}`);
           }
+        } else {
+          // Handle non-200 responses that don't throw errors
+          setError(`Failed to load post data. Server returned status: ${response.status}`);
         }
       } catch (error) {
         console.error('Error fetching post:', error);
@@ -88,6 +91,9 @@ const EditPost = () => {
       if (response.status === 200) {
         // Redirect to the post detail page after successful update
         navigate(`/blog/${id}`);
+      } else {
+        // Handle non-200 responses that don't throw errors
+        setError(`Failed to update post. Server returned status: ${response.status}`);
       }
     } catch (error) {
       console.error('Error updating post:', error);
@@ -97,100 +103,129 @@ const EditPost = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Container>
-        <Row>
-          <Col xs='12' className="py-3 text-center">
-            Loading post data...
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
-
   return (
-    <Container>
-      <Row>
-        <Col xs='12' className="py-3">
-          <h1 className="text-center">Edit Blog Post</h1>
-        </Col>
-        <Col xs='12'>
-          {error && <div className="alert alert-danger">{error}</div>}
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                required
-                placeholder="Enter post title"
-              />
-            </Form.Group>
+    <>
+      <Navbar className="app-navbar">
+        <Container>
+          <Link to="/">
+            <Navbar.Brand>Blog Explorer</Navbar.Brand>
+          </Link>
+        </Container>
+      </Navbar>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Content</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                name="post"
-                value={formData.post}
-                onChange={handleChange}
-                required
-                placeholder="Write your post content here"
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Image</Form.Label>
-              {currentImage && !imagePreview && (
-                <div className="mb-2">
-                  <p>Current image:</p>
-                  <img 
-                    src={currentImage} 
-                    alt="Current" 
-                    style={{ maxWidth: '100%', maxHeight: '200px' }} 
+      <Container>
+        {isLoading ? (
+          <Row className="justify-content-center">
+            <Col xs="12" className="loading-spinner">
+              <Spinner animation="border" role="status" variant="light">
+                <span className="visually-hidden">Loading post data...</span>
+              </Spinner>
+            </Col>
+          </Row>
+        ) : (
+          <Row>
+            <Col xs="12" lg={{ span: 8, offset: 2 }}>
+              <h1>Edit Blog Post</h1>
+              
+              {error && <div className="alert alert-danger mb-4">{error}</div>}
+              
+              <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-4">
+                  <Form.Label>Title</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter post title"
+                    className="form-control-lg"
                   />
-                </div>
-              )}
-              <Form.Control
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-              {imagePreview && (
-                <div className="mt-2">
-                  <p>New image:</p>
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    style={{ maxWidth: '100%', maxHeight: '200px' }} 
-                  />
-                </div>
-              )}
-            </Form.Group>
+                </Form.Group>
 
-            <div className="d-flex gap-2">
-              <Button 
-                variant="primary" 
-                type="submit" 
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Updating...' : 'Update Post'}
-              </Button>
-              <Button 
-                variant="secondary" 
-                onClick={() => navigate(`/blog/${id}`)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
+                <Form.Group className="mb-4">
+                  <Form.Label>Content</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={8}
+                    name="post"
+                    value={formData.post}
+                    onChange={handleChange}
+                    required
+                    placeholder="Write your post content here"
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-4">
+                  <Form.Label>Featured Image</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                  <Form.Text className="text-secondary">
+                    Upload a new image or keep the current one.
+                  </Form.Text>
+                  
+                  {currentImage && !imagePreview && (
+                    <div className="image-preview">
+                      <p className="text-secondary mb-2">Current image:</p>
+                      <img 
+                        src={currentImage} 
+                        alt="Current" 
+                        style={{ maxWidth: '100%', maxHeight: '300px', objectFit: 'cover' }} 
+                      />
+                    </div>
+                  )}
+                  
+                  {imagePreview && (
+                    <div className="image-preview">
+                      <p className="text-secondary mb-2">New image:</p>
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        style={{ maxWidth: '100%', maxHeight: '300px', objectFit: 'cover' }} 
+                      />
+                    </div>
+                  )}
+                </Form.Group>
+
+                <div className="d-flex gap-3 mb-5">
+                  <Button 
+                    variant="primary" 
+                    type="submit" 
+                    size="lg"
+                    disabled={isSubmitting}
+                    className="px-4"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Spinner 
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="me-2"
+                        />
+                        Updating...
+                      </>
+                    ) : 'Update Post'}
+                  </Button>
+                  <Button 
+                    variant="secondary"
+                    size="lg" 
+                    onClick={() => navigate(`/blog/${id}`)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </Form>
+            </Col>
+          </Row>
+        )}
+      </Container>
+    </>
   );
 };
 
